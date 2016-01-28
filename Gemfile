@@ -5,10 +5,6 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.5'
 ruby '2.2.4'
 
-gem 'nokogiri'
-gem 'rack', '~>1.1'
-gem 'rspec', :require => 'spec'
-
 # Use sqlite3 as the database for Active Record
 group :production do
   gem 'pg'
