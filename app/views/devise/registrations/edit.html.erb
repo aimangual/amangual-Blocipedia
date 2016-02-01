@@ -32,6 +32,17 @@
   </div>
 <% end %>
 
+<h3> Change my membership status</h3>
+  <p>Your membership status is currently: <b><%= current_user.role %></b>
+    <div>
+      <% if current_user.standard? %>
+        <%= link_to "Upgrade", new_charge_path, class: 'btn btn-info' %>
+      <% else %>
+        <%= link_to "Downgrade", charges_downgrade_path, class: 'btn btn-danger' %>
+      <% end %>
+    </div>
+  </p>
+  
 <h3>Cancel my account</h3>
 
 <p>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></p>

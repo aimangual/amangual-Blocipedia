@@ -4,11 +4,13 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
-  def admin?
-    role == 'admin'
-  end
-   
-  def moderator?
-    role == 'moderator'
+  has_many :wikis
+
+  after_initialize :default_role
+         
+  enum role: [:standard, :moderator, :premium, :admin]
+
+  def default_role
+    role ||= :standard
   end
 end

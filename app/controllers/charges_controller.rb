@@ -31,4 +31,11 @@ class ChargesController < ApplicationController
       amount: @amount
     }
   end
+
+  def downgrade
+    current_user.standard!
+    current_user.wikis.update_all(private: false)
+    flash["notice"] = "Your account has been downgraded."
+    redirect_to root_url
+  end
 end

@@ -1,11 +1,15 @@
 class WikisController < ApplicationController
+  before_action :set_wiki, only: [:show, :edit, :update, :destroy]
+  
   def index
-    @wiki = Wiki.all
-    authorize @wiki
+    @wikis = Wiki.visible_to(current_user)
   end
 
   def show
-    @wiki = Wiki.find(params[:id])
+    unless !@wiki.private? || current_user
+      flash[:error] = "You must be signed in to view private topics."
+      redirect_to new_session_path
+    end
   end
 
   def new
