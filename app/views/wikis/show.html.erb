@@ -1,5 +1,6 @@
 <h1><%= markdown_to_html @wiki.title %></h1>
 <% if policy(@wiki).edit? %>
 <%= link_to "Edit", edit_wiki_path(@wiki), class: 'btn btn-success' %>
+<%= link_to "Delete Wiki", @topic, method: :delete, class: 'btn btn-danger', data: { confirm: 'Confirm deletion of this wiki?' } %>
 <% end %>
 <p><%= markdown_to_html @wiki.body %></p>
