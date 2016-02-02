@@ -1,15 +1,11 @@
 class WikisController < ApplicationController
-  before_action :set_wiki, only: [:show, :edit, :update, :destroy]
-  
   def index
     @wikis = policy_scope(Wiki)
   end
 
   def show
-    unless !@wiki.private? || current_user
-      flash[:error] = "You must be signed in to view private topics."
-      redirect_to new_session_path
-    end
+    @wiki = Wiki.find(params[:id])
+    authorize @wiki
   end
 
   def new
@@ -18,31 +14,50 @@ class WikisController < ApplicationController
   end
 
   def create
-    @wiki = Wiki.new(params.require(:wiki).permit(:title, :body))
+    @wiki = Wiki.new(wiki_params)
+    @wiki.user = current_user
     authorize @wiki
-     if @wiki.save
-      flash[:notice] = "Wiki was saved."
-      redirect_to @Wiki
+    if @wiki.save
+      flash[:notice] = "Your wiki was saved."
+      redirect_to @wiki
     else
-      flash[:error] = "There was an error saving the wiki. Please try again."
+      flash[:error] = "There was an error saving your wiki. Please try again."
       render :new
     end
   end
 
   def edit
     @wiki = Wiki.find(params[:id])
+    @users = User.all
     authorize @wiki
   end
 
   def update
     @wiki = Wiki.find(params[:id])
     authorize @wiki
-    if @wiki.update_attributes(params.require(:wiki).permit(:title, :body))
-      flash[:notice] = "Wiki was updated."
+    if @wiki.update_attributes(wiki_params)
+      flash[:notice] = "Wiki was sucessfully updated."
       redirect_to @wiki
     else
       flash[:error] = "There was an error saving the wiki. Please try again."
       render :edit
     end
   end
+
+  def destroy
+    @wiki = Wiki.find(params[:id])
+    if @wiki.destroy
+      flash[:notice] = "Wiki was sucessfully deleted."
+      redirect_to wikis_path
+    else
+      flash[:error] = "There was an error deleting the wiki. Please try again."
+      render :show
+    end
+  end
+
+  private
+
+    def wiki_params
+      params.require(:wiki).permit(:title, :body, :private)
+    end  
 end

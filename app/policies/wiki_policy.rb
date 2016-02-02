@@ -1,49 +1,50 @@
- class WikiPolicy < ApplicationPolicy
-  attr_reader :user, :wiki
-
+class WikiPolicy < ApplicationPolicy
   def index?
     true
   end
 
-  def create?
-    user.present?
+  def show?
+    record.private != true || (user.present? && ((user.role == 'admin') || record.user == user || record.users.include?(user)))  
   end
 
   def update?
-    user.present? && (record.user == user || user.admin? || !record.private?)
+    show? 
   end
 
-  def admin_list?
-    user.admin?
+  def edit?
+    show? 
   end
+
   class Scope
-  attr_reader :user, :scope
+   attr_reader :user, :scope
 
-  def initialize(user, scope)
-   @user = user
-   @scope = scope
-  end
-
-  def resolve
-   wikis = []
-   if user.role == 'admin'
-     wikis = scope.all # if the user is an admin, show them all the wikis
-   elsif user.role == 'premium'
-     all_wikis = scope.all
-     all_wikis.each do |wiki|
-       if wiki.public? || wiki.user == user || wiki.users.include?(user)
-         wikis << wiki # if the user is premium, only show them public wikis, or that private wikis they created, or private wikis they are a collaborator on
-       end
-     end
-   else # this is the lowly standard user
-     all_wikis = scope.all
-     wikis = []
-     all_wikis.each do |wiki|
-       if wiki.public? || wiki.users.include?(user)
-         wikis << wiki # only show standard users public wikis and private wikis they are a collaborator on
-       end
-     end
+   def initialize(user, scope)
+     @user = user
+     @scope = scope
    end
-   wikis # return the wikis array we've built up
-  end
+
+   def resolve
+     wikis = []
+     if user.present? && user.role == 'admin'
+       wikis = scope.all 
+     elsif user.present? && user.role == 'premium'
+       all_wikis = scope.all
+       all_wikis.each do |wiki|
+         if wiki.private != true || wiki.user == user || wiki.users.include?(user)
+           wikis << wiki 
+         end
+       end
+     else 
+       all_wikis = scope.all
+       wikis = []
+       all_wikis.each do |wiki|
+         if wiki.private != true || wiki.users.include?(user)
+           wikis << wiki 
+         end
+       end
+     end
+     wikis  
+   end
  end
+
+end
