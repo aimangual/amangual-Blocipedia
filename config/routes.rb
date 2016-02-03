@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   resources :charges, only: [:new, :create]
 
   devise_for :users
-  resources :users, only: [:update]
+  resources :users, only: [:update, :show, :index]
   
   get 'about' => 'welcome#about'
    
